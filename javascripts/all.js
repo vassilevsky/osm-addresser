@@ -5093,7 +5093,7 @@ L.Map.include({
 
   map.on("locationfound", onLocationFound);
 
-  document.ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
+  $(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
     return alert(thrownError);
   });
 
