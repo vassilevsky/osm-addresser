@@ -4986,8 +4986,10 @@ this.qwest=function(){var win=window,limit=null,requests=0,request_stack=[],getX
   };
 
   fetchBuildingsAroundLocation = function(location) {
-    return qwest.get("http://overpass-api.de/api/interpreter", {
-      data: "[out:json];way(around:" + FETCH_RADIUS + ".0," + location.latitude + "," + location.longitude + ")[building];(._; - way._['addr:housenumber'];);(._;>;);out;"
+    var query;
+    query = "[out:json];way(around:" + FETCH_RADIUS + ".0," + location.latitude + "," + location.longitude + ")[building];(._; - way._['addr:housenumber'];);(._;>;);out;";
+    return qwest.post("http://overpass-api.de/api/interpreter", {
+      data: query
     }).success(addBuildingsToTheMap).error(displayError);
   };
 
