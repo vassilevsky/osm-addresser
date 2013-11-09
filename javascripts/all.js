@@ -4956,11 +4956,38 @@ L.Map.include({
 */
 this.qwest=function(){var win=window,limit=null,requests=0,request_stack=[],getXHR=function(){return win.XMLHttpRequest?new XMLHttpRequest:new ActiveXObject("Microsoft.XMLHTTP")},version2=getXHR().responseType==="",qwest=function(method,url,data,options,before){data=data||null,options=options||{};var typeSupported=!1,xhr=getXHR(),async=options.async===undefined?!0:!!options.async,cache=!!options.cache,type=options.type?options.type.toLowerCase():"json",user=options.user||"",password=options.password||"",headers={"X-Requested-With":"XMLHttpRequest"},accepts={xml:"application/xml, text/xml",html:"text/html",text:"text/plain",json:"application/json, text/javascript",js:"application/javascript, text/javascript"},vars="",i,parseError="parseError",serialized,success_stack=[],error_stack=[],complete_stack=[],response,success,error,func,promises={success:function(e){return async?success_stack.push(e):success&&e.apply(xhr,[response]),promises},error:function(e){return async?error_stack.push(e):error&&e.apply(xhr,[response]),promises},complete:function(e){return async?complete_stack.push(e):e.apply(xhr),promises}},promises_limit={success:function(e){return request_stack[request_stack.length-1].success.push(e),promises_limit},error:function(e){return request_stack[request_stack.length-1].error.push(e),promises_limit},complete:function(e){return request_stack[request_stack.length-1].complete.push(e),promises_limit}},handleResponse=function(){var i,req,p;--requests;if(request_stack.length){req=request_stack.shift(),p=qwest(req.method,req.url,req.data,req.options,req.before);for(i=0;func=req.success[i];++i)p.success(func);for(i=0;func=req.error[i];++i)p.error(func);for(i=0;func=req.complete[i];++i)p.complete(func)}try{if(xhr.status!=200)throw xhr.status+" ("+xhr.statusText+")";var responseText="responseText",responseXML="responseXML";if(type=="text"||type=="html")response=xhr[responseText];else if(typeSupported&&xhr.response!==undefined)response=xhr.response;else switch(type){case"json":try{win.JSON?response=win.JSON.parse(xhr[responseText]):response=eval("("+xhr[responseText]+")")}catch(e){throw"Error while parsing JSON body"}break;case"js":response=eval(xhr[responseText]);break;case"xml":if(!xhr[responseXML]||xhr[responseXML][parseError]&&xhr[responseXML][parseError].errorCode&&xhr[responseXML][parseError].reason)throw"Error while parsing XML body";response=xhr[responseXML];break;default:throw"Unsupported "+type+" type"}success=!0;if(async)for(i=0;func=success_stack[i];++i)func.apply(xhr,[response])}catch(e){error=!0,response="Request to '"+url+"' aborted: "+e;if(async)for(i=0;func=error_stack[i];++i)func.apply(xhr,[response])}if(async)for(i=0;func=complete_stack[i];++i)func.apply(xhr)};if(limit&&requests==limit)return request_stack.push({method:method,url:url,data:data,options:options,before:before,success:[],error:[],complete:[]}),promises_limit;++requests;if(win.ArrayBuffer&&(data instanceof ArrayBuffer||data instanceof Blob||data instanceof Document||data instanceof FormData))method=="GET"&&(data=null);else{var values=[],enc=encodeURIComponent;for(i in data)values.push(enc(i)+(data[i].pop?"[]":"")+"="+enc(data[i]));data=values.join("&"),serialized=!0}method=="GET"&&(vars+=data),cache||(vars&&(vars+="&"),vars+="t="+Date.now()),vars&&(url+=(/\?/.test(url)?"&":"?")+vars),xhr.open(method,url,async,user,password);if(type&&version2)try{xhr.responseType=type,typeSupported=xhr.responseType==type}catch(e){}version2?xhr.onload=handleResponse:xhr.onreadystatechange=function(){xhr.readyState==4&&handleResponse()},serialized&&method=="POST"&&(headers["Content-Type"]="application/x-www-form-urlencoded"),headers.Accept=accepts[type];for(i in headers)xhr.setRequestHeader(i,headers[i]);return before&&before.apply(xhr),xhr.send(method=="POST"?data:null),promises};return{get:function(e,t,n,r){return qwest("GET",e,t,n,r)},post:function(e,t,n,r){return qwest("POST",e,t,n,r)},xhr2:version2,limit:function(e){limit=e}}}();
 (function() {
-  var addBuildingsToTheMap, displayError, format, getAnswers, loadBuildingsForLocation, map, postNote, tagBuilding;
+  var FETCH_RADIUS, LOCATION_CHECK_INTERVAL, LOCATION_WAITING_TIMEOUT, MAX_ZOOM, addBuildingsToTheMap, checkLocation, currentLocation, displayError, fetchBuildingsAroundLocation, format, getAnswers, map, onLocationFound, postNote, tagBuilding;
 
-  loadBuildingsForLocation = function(location) {
+  LOCATION_CHECK_INTERVAL = 1000 * 60;
+
+  LOCATION_WAITING_TIMEOUT = 1000 * 45;
+
+  MAX_ZOOM = 16;
+
+  FETCH_RADIUS = 1000;
+
+  currentLocation = new L.LatLng(0, 0);
+
+  checkLocation = function() {
+    setTimeout(checkLocation, LOCATION_CHECK_INTERVAL);
+    return map.locate({
+      enableHighAccuracy: true,
+      setView: true,
+      maxZoom: MAX_ZOOM,
+      timeout: LOCATION_WAITING_TIMEOUT
+    });
+  };
+
+  onLocationFound = function(location) {
+    if (location.latlng.distanceTo(currentLocation) > FETCH_RADIUS) {
+      fetchBuildingsAroundLocation(location);
+    }
+    return currentLocation = location.latlng;
+  };
+
+  fetchBuildingsAroundLocation = function(location) {
     return qwest.get("http://overpass-api.de/api/interpreter", {
-      data: "[out:json];is_in(" + location.latitude + ", " + location.longitude + ");area._[place=city];way(area)[building];(._; - way._['addr:housenumber'];);(._;>;);out;"
+      data: "[out:json];way(around:" + FETCH_RADIUS + ".0," + location.latitude + "," + location.longitude + ")[building];(._; - way._['addr:housenumber'];);(._;>;);out;"
     }).success(addBuildingsToTheMap).error(displayError);
   };
 
@@ -4984,13 +5011,12 @@ this.qwest=function(){var win=window,limit=null,requests=0,request_stack=[],getX
           }
         }
       }
-      building_polygon = L.polygon(corners, {
+      building_polygon = new L.Polygon(corners, {
         color: "red"
       });
       building_polygon.on("click", tagBuilding);
       map.addLayer(building_polygon);
     }
-    return true;
   };
 
   displayError = function(message) {
@@ -5007,7 +5033,7 @@ this.qwest=function(){var win=window,limit=null,requests=0,request_stack=[],getX
     if (answers) {
       center = this.getBounds().getCenter();
       text = format(answers);
-      return postNote(center.lat, center.lon, text, function() {
+      return postNote(center.lat, center.lng, text, function() {
         return _this.setStyle({
           color: "green"
         });
@@ -5056,24 +5082,15 @@ this.qwest=function(){var win=window,limit=null,requests=0,request_stack=[],getX
     return qwest.post("http://api.openstreetmap.org/api/0.6/notes", data).success(onNotePosted).error(displayError);
   };
 
-  map = L.map("map");
+  map = new L.Map("map");
 
-  map.addLayer(L.tileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  map.addLayer(new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: "© OpenStreetMap contributors",
     detectRetina: true
   }));
 
-  map.on("locationfound", loadBuildingsForLocation);
+  map.on("locationfound", onLocationFound);
 
-  map.locate({
-    watch: true,
-    setView: true,
-    maxZoom: 16,
-    timeout: 10 * 60 * 1000,
-    enableHighAccuracy: true
-  });
+  checkLocation();
 
 }).call(this);
-
-
-
