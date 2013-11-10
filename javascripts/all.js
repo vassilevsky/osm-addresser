@@ -22,7 +22,7 @@ o.DomUtil.addClass(t,"leaflet-vml-shape"),this.options.clickable&&o.DomUtil.addC
 
   LOCATION_WAITING_TIMEOUT = 1000 * 45;
 
-  MAX_ZOOM = 16;
+  MAX_ZOOM = 17;
 
   FETCH_RADIUS = 1000;
 
