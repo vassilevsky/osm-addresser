@@ -95,7 +95,12 @@ o.DomUtil.addClass(t,"leaflet-vml-shape"),this.options.clickable&&o.DomUtil.addC
     this.setStyle({
       color: "orange"
     });
-    answers = getAnswers(["addr:housenumber", "addr:street", "building:levels", "comment"]);
+    answers = getAnswers({
+      "addr:housenumber": "Номер дома",
+      "addr:street": "Улица",
+      "building:levels": "Количество этажей",
+      "comment": "Комментарий"
+    });
     if (answers) {
       center = this.getBounds().getCenter();
       text = format(answers);
@@ -121,9 +126,9 @@ o.DomUtil.addClass(t,"leaflet-vml-shape"),this.options.clickable&&o.DomUtil.addC
   };
 
   getAnswers = function(questions) {
-    var answers, input, question, value, _i, _len;
-    for (_i = 0, _len = questions.length; _i < _len; _i++) {
-      question = questions[_i];
+    var answers, input, question, tagName, value;
+    for (tagName in questions) {
+      question = questions[tagName];
       input = prompt("" + question + " = ?");
       if (input != null) {
         value = input.trim();
@@ -131,7 +136,7 @@ o.DomUtil.addClass(t,"leaflet-vml-shape"),this.options.clickable&&o.DomUtil.addC
           if (typeof answers === "undefined" || answers === null) {
             answers = {};
           }
-          answers[question] = value;
+          answers[tagName] = value;
         }
       }
     }
