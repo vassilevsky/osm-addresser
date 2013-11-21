@@ -179,8 +179,7 @@ o.DomUtil.addClass(t,"leaflet-vml-shape"),this.options.clickable&&o.DomUtil.addC
   map = new L.Map("map");
 
   map.addLayer(new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "© OpenStreetMap contributors",
-    detectRetina: true
+    attribution: "© OpenStreetMap contributors"
   }));
 
   map.on("locationfound", onLocationFound);
