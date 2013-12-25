@@ -1,9 +1,11 @@
 (function() {
-  var FETCH_RADIUS, LOCATION_CHECK_INTERVAL, LOCATION_WAITING_TIMEOUT, MAX_ZOOM, NOTES_URL, OVERPASS_URL, addBuildings, checkLocation, currentLocation, displayError, fetchBuildingsAroundLocation, format, getAnswers, levels_word, map, onLocationFound, postNote, tagBuilding;
+  var FETCH_RADIUS, LOCATION_CHECK_INTERVAL, LOCATION_WAITING_TIMEOUT, MAX_ACCEPTABLE_ACCURACY, MAX_ZOOM, NOTES_URL, OVERPASS_URL, addBuildings, checkLocation, currentLocation, displayError, fetchBuildingsAroundLocation, format, getAnswers, levels_word, map, onLocationError, onLocationFound, postNote, tagBuilding;
 
   LOCATION_CHECK_INTERVAL = 1000 * 60;
 
   LOCATION_WAITING_TIMEOUT = 1000 * 45;
+
+  MAX_ACCEPTABLE_ACCURACY = 500;
 
   MAX_ZOOM = 17;
 
@@ -25,16 +27,24 @@
     });
   };
 
+  onLocationError = function(error) {
+    return alert("Error " + error.code + ": " + error.message + " :(");
+  };
+
   onLocationFound = function(location) {
-    if (location.latlng.distanceTo(currentLocation) > FETCH_RADIUS) {
-      fetchBuildingsAroundLocation(location);
+    if (location.accuracy > MAX_ACCEPTABLE_ACCURACY) {
+      return alert("К сожалению, ваше устройство не смогло достаточно точно определить своё местоположение. " + ("Текущая точность: " + location.accuracy + " м. ") + "Пожалуйста, убедитесь, что службы геолокации (GPS) включены для этого браузера. " + "Если это так, попробуйте выйти на более открытое пространство.");
+    } else {
+      if (location.latlng.distanceTo(currentLocation) > FETCH_RADIUS) {
+        fetchBuildingsAroundLocation(location);
+      }
+      return currentLocation = location.latlng;
     }
-    return currentLocation = location.latlng;
   };
 
   fetchBuildingsAroundLocation = function(location) {
     var q;
-    q = "[out:json];way(around:" + FETCH_RADIUS + ".0," + location.latitude + "," + location.longitude + ")[building];(._; - way._['addr:housenumber'];);(._;>;);out;";
+    q = "[out:json];" + ("way(around:" + FETCH_RADIUS + ".0," + location.latitude + "," + location.longitude + ")[building];") + "(._; - way._['addr:housenumber'];);" + "(._;>;);" + "out;";
     return $.post(OVERPASS_URL, {
       data: q
     }, addBuildings);
@@ -164,6 +174,8 @@
   map.addLayer(new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: "© OpenStreetMap contributors"
   }));
+
+  map.on("locationerror", onLocationError);
 
   map.on("locationfound", onLocationFound);
 
