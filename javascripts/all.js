@@ -148,14 +148,15 @@
     for (tagName in questions) {
       question = questions[tagName];
       input = prompt("" + question + " = ?");
-      if (input != null) {
-        value = input.trim();
-        if (value.length) {
-          if (typeof answers === "undefined" || answers === null) {
-            answers = {};
-          }
-          answers[tagName] = value;
+      if (input == null) {
+        return null;
+      }
+      value = input.trim();
+      if (value.length) {
+        if (typeof answers === "undefined" || answers === null) {
+          answers = {};
         }
+        answers[tagName] = value;
       }
     }
     return answers;
