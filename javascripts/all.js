@@ -83,8 +83,7 @@
   };
 
   tagBuilding = function() {
-    var answers, center, text,
-      _this = this;
+    var answers, center, text;
     this.setStyle({
       color: "orange"
     });
@@ -97,11 +96,13 @@
     if (answers) {
       center = this.getBounds().getCenter();
       text = format(answers);
-      return postNote(center.lat, center.lng, text, function() {
-        return _this.setStyle({
-          color: "green"
-        });
-      });
+      return postNote(center.lat, center.lng, text, (function(_this) {
+        return function() {
+          return _this.setStyle({
+            color: "green"
+          });
+        };
+      })(this));
     }
   };
 
