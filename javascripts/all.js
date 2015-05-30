@@ -1,5 +1,5 @@
 (function() {
-  var FETCH_RADIUS, LOCATION_CHECK_INTERVAL, LOCATION_WAITING_TIMEOUT, MAX_ACCEPTABLE_ACCURACY, MAX_ZOOM, NOTES_URL, OVERPASS_URL, addBuildings, checkLocation, currentLocation, displayError, fetchBuildingsAroundLocation, format, getAnswers, levels_word, map, onLocationError, onLocationFound, postNote, tagBuilding;
+  var FETCH_RADIUS, LOCATION_CHECK_INTERVAL, LOCATION_WAITING_TIMEOUT, MAP_ID, MAX_ACCEPTABLE_ACCURACY, MAX_ZOOM, NOTES_URL, OVERPASS_URL, TOKEN, addBuildings, checkLocation, currentLocation, displayError, fetchBuildingsAroundLocation, format, getAnswers, levels_word, map, onLocationError, onLocationFound, postNote, tagBuilding;
 
   LOCATION_CHECK_INTERVAL = 1000 * 60;
 
@@ -10,6 +10,10 @@
   MAX_ZOOM = 16;
 
   FETCH_RADIUS = 1000;
+
+  TOKEN = "pk.eyJ1IjoidmFzc2lsZXZza3kiLCJhIjoiSExMaHRpYyJ9.MrxjsWwHSrH_DfaRDNRYTw";
+
+  MAP_ID = "vassilevsky.malbohg9";
 
   OVERPASS_URL = "http://overpass-api.de/api/interpreter";
 
@@ -173,8 +177,8 @@
 
   map = new L.Map("map");
 
-  map.addLayer(new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "© OpenStreetMap contributors"
+  map.addLayer(new L.TileLayer("https://{s}.tiles.mapbox.com/v4/" + MAP_ID + "/{z}/{x}/{y}.png?access_token=" + TOKEN, {
+    attribution: '<a href="http://www.mapbox.com/about/maps/" target="_blank">Terms &amp; Feedback</a>'
   }));
 
   map.on("locationerror", onLocationError);
