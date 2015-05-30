@@ -55,19 +55,19 @@
   };
 
   addBuildings = function(overpassResponse) {
-    var building, building_polygon, corners, elements, node, node_id, _i, _j, _k, _len, _len1, _len2, _ref;
+    var building, building_polygon, corners, elements, i, j, k, len, len1, len2, node, node_id, ref;
     elements = overpassResponse.elements;
-    for (_i = 0, _len = elements.length; _i < _len; _i++) {
-      building = elements[_i];
+    for (i = 0, len = elements.length; i < len; i++) {
+      building = elements[i];
       if (!(building.type === "way")) {
         continue;
       }
       corners = [];
-      _ref = building.nodes;
-      for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-        node_id = _ref[_j];
-        for (_k = 0, _len2 = elements.length; _k < _len2; _k++) {
-          node = elements[_k];
+      ref = building.nodes;
+      for (j = 0, len1 = ref.length; j < len1; j++) {
+        node_id = ref[j];
+        for (k = 0, len2 = elements.length; k < len2; k++) {
+          node = elements[k];
           if (node.id === node_id) {
             corners.push([node.lat, node.lon]);
             break;
@@ -120,7 +120,7 @@
       pieces.push("дом № " + answers.number);
     }
     if (answers.levels) {
-      pieces.push("" + answers.levels + " " + (levels_word(answers.levels)));
+      pieces.push(answers.levels + " " + (levels_word(answers.levels)));
     }
     address = pieces.join(", ");
     if (answers.comment) {
@@ -152,7 +152,7 @@
     var answers, input, question, tagName, value;
     for (tagName in questions) {
       question = questions[tagName];
-      input = prompt("" + question + " = ?");
+      input = prompt(question + " = ?");
       if (input == null) {
         return null;
       }
