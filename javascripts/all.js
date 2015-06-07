@@ -1,5 +1,5 @@
 (function() {
-  var FETCH_RADIUS, LOCATION_CHECK_INTERVAL, LOCATION_WAITING_TIMEOUT, MAX_ACCEPTABLE_ACCURACY, MAX_ZOOM, NOTES_URL, OVERPASS_URL, TOKEN, addBuildings, checkLocation, currentLocation, displayError, fetchBuildingsAroundLocation, format, getAnswers, levels_word, map, onLocationError, onLocationFound, postNote, tagBuilding;
+  var FETCH_RADIUS, LOCATION_CHECK_INTERVAL, LOCATION_WAITING_TIMEOUT, MAX_ACCEPTABLE_ACCURACY, MAX_ZOOM, NOTES_URL, OVERPASS_URL, addBuildings, checkLocation, currentLocation, displayError, fetchBuildingsAroundLocation, format, getAnswers, levels_word, map, onLocationError, onLocationFound, postNote, tagBuilding;
 
   LOCATION_CHECK_INTERVAL = 1000 * 60;
 
@@ -10,8 +10,6 @@
   MAX_ZOOM = 16;
 
   FETCH_RADIUS = 1000;
-
-  TOKEN = "pk.eyJ1IjoidmFzc2lsZXZza3kiLCJhIjoiSExMaHRpYyJ9.MrxjsWwHSrH_DfaRDNRYTw";
 
   OVERPASS_URL = "http://overpass-api.de/api/interpreter";
 
@@ -173,11 +171,13 @@
     }, onNotePosted);
   };
 
-  map = new L.Map("map");
+  L.mapbox.accessToken = 'pk.eyJ1IjoidmFzc2lsZXZza3kiLCJhIjoiSExMaHRpYyJ9.MrxjsWwHSrH_DfaRDNRYTw';
 
-  map.addLayer(new L.TileLayer("https://{s}.tiles.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}.png?access_token=" + TOKEN, {
-    attribution: '<a href="http://www.mapbox.com/about/maps/" target="_blank">Terms &amp; Feedback</a>'
-  }));
+  map = L.mapbox.map('map', 'mapbox.streets', {
+    tileLayer: {
+      detectRetina: true
+    }
+  });
 
   map.on("locationerror", onLocationError);
 
