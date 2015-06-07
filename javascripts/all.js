@@ -40,7 +40,7 @@
 
   fetchBuildingsAroundLocation = function(location) {
     var q;
-    q = '[out:json];' + ("way(around:" + FETCH_RADIUS + ".0," + location.latitude + "," + location.longitude + ")[building];") + "(._; - way._['addr:housenumber'];);" + '(._;>;);' + 'out;';
+    q = "[out:json]; way(around:" + FETCH_RADIUS + ".0," + location.latitude + "," + location.longitude + ")[building]; (._; - way._['addr:housenumber'];); (._;>;); out;";
     return $.post(OVERPASS_URL, {
       data: q
     }, addBuildings);
