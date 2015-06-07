@@ -173,11 +173,7 @@
 
   L.mapbox.accessToken = 'pk.eyJ1IjoidmFzc2lsZXZza3kiLCJhIjoiSExMaHRpYyJ9.MrxjsWwHSrH_DfaRDNRYTw';
 
-  map = L.mapbox.map('map', 'mapbox.streets', {
-    tileLayer: {
-      detectRetina: true
-    }
-  });
+  map = L.mapbox.map('map', 'mapbox.streets');
 
   map.on("locationerror", onLocationError);
 
