@@ -11,9 +11,9 @@
 
   FETCH_RADIUS = 1000;
 
-  OVERPASS_URL = "http://overpass-api.de/api/interpreter";
+  OVERPASS_URL = 'http://overpass-api.de/api/interpreter';
 
-  NOTES_URL = "http://api.openstreetmap.org/api/0.6/notes";
+  NOTES_URL = 'http://api.openstreetmap.org/api/0.6/notes';
 
   currentLocation = new L.LatLng(0, 0);
 
@@ -40,7 +40,7 @@
 
   fetchBuildingsAroundLocation = function(location) {
     var q;
-    q = "[out:json];" + ("way(around:" + FETCH_RADIUS + ".0," + location.latitude + "," + location.longitude + ")[building];") + "(._; - way._['addr:housenumber'];);" + "(._;>;);" + "out;";
+    q = '[out:json];' + ("way(around:" + FETCH_RADIUS + ".0," + location.latitude + "," + location.longitude + ")[building];") + "(._; - way._['addr:housenumber'];);" + '(._;>;);' + 'out;';
     return $.post(OVERPASS_URL, {
       data: q
     }, addBuildings);
@@ -51,7 +51,7 @@
     elements = overpassResponse.elements;
     for (i = 0, len = elements.length; i < len; i++) {
       building = elements[i];
-      if (!(building.type === "way")) {
+      if (!(building.type === 'way')) {
         continue;
       }
       corners = [];
@@ -67,9 +67,9 @@
         }
       }
       building_polygon = new L.Polygon(corners, {
-        color: "red"
+        color: 'red'
       });
-      building_polygon.on("click", tagBuilding);
+      building_polygon.on('click', tagBuilding);
       map.addLayer(building_polygon);
     }
   };
@@ -81,13 +81,13 @@
   tagBuilding = function() {
     var answers, center, text;
     this.setStyle({
-      color: "orange"
+      color: 'orange'
     });
     answers = getAnswers({
-      number: "Номер дома",
-      street: "Улица",
-      levels: "Количество этажей",
-      comment: "Комментарий"
+      number: 'Номер дома',
+      street: 'Улица',
+      levels: 'Количество этажей',
+      comment: 'Комментарий'
     });
     if (answers) {
       center = this.getBounds().getCenter();
@@ -95,7 +95,7 @@
       return postNote(center.lat, center.lng, text, (function(_this) {
         return function() {
           return _this.setStyle({
-            color: "green"
+            color: 'green'
           });
         };
       })(this));
@@ -114,7 +114,7 @@
     if (answers.levels) {
       pieces.push(answers.levels + " " + (levels_word(answers.levels)));
     }
-    address = pieces.join(", ");
+    address = pieces.join(', ');
     if (answers.comment) {
       if (address.length > 0) {
         address += " (" + answers.comment + ")";
@@ -128,16 +128,16 @@
   levels_word = function(n) {
     n %= 100;
     if (n >= 5 && n <= 20) {
-      return "этажей";
+      return 'этажей';
     }
     n %= 10;
     if (n === 1) {
-      return "этаж";
+      return 'этаж';
     }
     if (n >= 2 && n <= 4) {
-      return "этажа";
+      return 'этажа';
     }
-    return "этажей";
+    return 'этажей';
   };
 
   getAnswers = function(questions) {
@@ -171,9 +171,9 @@
 
   map = L.mapbox.map('map', 'mapbox.streets');
 
-  map.on("locationerror", onLocationError);
+  map.on('locationerror', onLocationError);
 
-  map.on("locationfound", onLocationFound);
+  map.on('locationfound', onLocationFound);
 
   $(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
     return alert(thrownError);
