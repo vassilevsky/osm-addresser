@@ -32,14 +32,10 @@
   };
 
   onLocationFound = function(location) {
-    if (location.accuracy > MAX_ACCEPTABLE_ACCURACY) {
-      return alert("К сожалению, ваше устройство не смогло достаточно точно определить своё местоположение. " + ("Текущая точность: " + location.accuracy + " м. ") + "Пожалуйста, убедитесь, что службы геолокации (GPS) включены для этого браузера. " + "Если это так, попробуйте выйти на более открытое пространство.");
-    } else {
-      if (location.latlng.distanceTo(currentLocation) > FETCH_RADIUS) {
-        fetchBuildingsAroundLocation(location);
-      }
-      return currentLocation = location.latlng;
+    if (location.accuracy <= MAX_ACCEPTABLE_ACCURACY && location.latlng.distanceTo(currentLocation) > FETCH_RADIUS) {
+      fetchBuildingsAroundLocation(location);
     }
+    return currentLocation = location.latlng;
   };
 
   fetchBuildingsAroundLocation = function(location) {
