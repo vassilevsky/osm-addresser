@@ -11,7 +11,7 @@
 
   FETCH_RADIUS = 1000;
 
-  OVERPASS_URL = 'http://overpass-api.de/api/interpreter';
+  OVERPASS_URL = 'http://overpass.openstreetmap.fr/api/interpreter';
 
   NOTES_URL = 'http://api.openstreetmap.org/api/0.6/notes';
 
